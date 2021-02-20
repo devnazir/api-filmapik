@@ -1,40 +1,54 @@
 # API FILMAPIK
-API ini digunakan untuk mengambil data-data movies atau film yang ada di website filmapik
+API ini digunakan untuk mengambil data-data movies atau film yang ada di website filmapik.
+Berikut ini beberapa data yang akan didapat
+1. title
+2. thumbnailPotrait
+3. rating
+4. quality
+5. movieId
+6. views
+7. genre
+8. director
+9. actors
+10. country
+11. duration
+12. release
+13. thumbnailLandscape
+14. description
+15. video
+16. trailer
 
-| Pathname    | Required Parameter | Optional Parameter      |
-| ----------- | ------------------ | ----------------------- |
-| search      | q                  | page, video, maxResult |
-| latest      |                    | page, video, maxResult |
-| country     | search             | page, video, maxResult |
-| category    | search             | page, video, maxResult |
-| play | q | |
+| Pathname    | Memerlukan Parameter | Opsional Parameter      | Keterangan |
+| ----------- | ------------------ | ----------------------- | ----- |
+| search      | q                  | page, video, maxResult | untuk melakukan pencarian movie |
+| latest      |                    | page, video, maxResult | untuk mendapatkan data-data movies terbaru diupload |
+| country     | search             | page, video, maxResult | untuk melakukan pencarian movie berdasarkan negara |
+| category    | search             | page, video, maxResult | untuk melakukan pencarian movie berdasarkan kategori |
+| play | q | | untuk melihat link video google drive |
 
-| Parameter | Note  | 
+| Parameter | Keterangan  | 
 | --------- | ---------- |
 | page      | digunakan untuk menentukan data movies pada halaman yang ditentukan |
 | video     | digunakan jika ingin menampilkan link video pada google drive atau efek.stream (player filmapik), secara default nilai nya false. jika ingin menampilkan link google drive, isi parameter dengan nilai gdrive. Jika ingin menampilkan link efek.stream, isi parameter dengan nilai iframe.
 | maxResult | digunakan untuk menentukan berapa jumlah movie yang akan ditampilam dalam satu halaman |
 | q         | digunakan untuk melakukan pencarian movie / pencarian movie berdasarkan movieId. |
 | search    | digunakan untuk melakukan pencarian movie berdasarkan negara/kategori |
-| play | digunakan untuk mencari movie berdasarkan movieId, value yang akan didapat yaitu link video google drive |
 
-## Usage
+## Pemakaian
 https://api-filmapik.herokuapp.com/pathname?parameter
 
-## Example
-#### Search Movies
+## Contoh
+#### GET Search Movies
 https://api-filmapik.herokuapp.com/search?q=avenger
 
-#### Latest Movies
+#### GET Latest Movies
 https://api-filmapik.herokuapp.com/latest
 
-#### Search by Country 
+#### GET Search by Country 
 https://api-filmapik.herokuapp.com/country?search=france
 
-#### Search by Category
+#### GET Search by Category
 https://api-filmapik.herokuapp.com/category?search=action
 
-# Note
-#### if you want result with link google drive, input like this
-https://api-filmapik.herokuapp.com/search?q=avenger&gdrive=true
-  
+#### GET Link Google Drive
+https://api-filmapik.herokuapp.com/play?id=142455
