@@ -28,6 +28,10 @@ function checkSearch(req) {
     return req.query.search.toLowerCase()
 }
 
+function maxResult(req) {
+    return req.query.maxResult ?? 21
+}
+
 async function scrapHomePage() {
     const html = await axios(`${domain}`)
     const response = html.data
@@ -40,7 +44,7 @@ async function scrapHomePage() {
 app.get('/search', function(req, res) {
     const q = req.query.q
     const url = `${domain}/page/${checkNumPage(req)}?s=${q}`
-    getMovies(req, res, url, checkNumPage(req), checkGdrive(req))
+    getMovies(req, res, url, checkNumPage(req), checkGdrive(req), maxResult(req))
 })
 
 app.get('/latest', function (req, res) {

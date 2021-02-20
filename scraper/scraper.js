@@ -11,13 +11,13 @@ async function scrapping(res, url) {
     }
 }
 
-async function getJSON(req, res, url, numPage, gdrive) {
+async function getJSON(req, res, url, numPage, gdrive, maxResult) {
     try {
         const html = await scrapping(res, url)
         const { window } = new JSDOM(html)
         const result = []
 
-        const movies = Array.from(window.document.querySelectorAll('.movies-list .ml-item'))
+        const movies = Array.from(window.document.querySelectorAll('.movies-list .ml-item')).slice(0, maxResult)
         await Promise.all(movies.map(async movie => {
             const officialWeb = movie.querySelector('.ml-mask').getAttribute('href')
             const quality = movie.querySelector('.mli-quality')?.textContent
@@ -25,6 +25,7 @@ async function getJSON(req, res, url, numPage, gdrive) {
             const rating = movie.querySelector('.mli-rating').textContent
             const thumbnail = movie.querySelector('img').getAttribute('data-original')
             const title = movie.querySelector('.mli-info h2').textContent
+            const movieId = movie.dataset.movieId
 
             result.push({
                 title,
@@ -32,8 +33,9 @@ async function getJSON(req, res, url, numPage, gdrive) {
                 rating,
                 quality,
                 episode,
-                detail: await detailMovie(officialWeb),
                 officialWeb,
+                movieId,
+                detail: await detailMovie(officialWeb),
                 video: await getIframe(req, res, officialWeb, gdrive)
             })
         }))
@@ -47,7 +49,7 @@ async function getJSON(req, res, url, numPage, gdrive) {
             delete movie.officialWeb
         })
 
-        res.json({ result, page: numPage })
+        res.json({ result, length: `${movies.length}` ,page: numPage })
 
     } catch (err) {
         console.log(err)
@@ -72,7 +74,7 @@ async function detailMovie(officialWeb) {
     const actors = window.document.querySelector('.mvic-desc .mvic-info .mvici-left')?.children.item(3)?.querySelector('span')?.textContent
     const country = window.document.querySelector('.mvic-desc .mvic-info .mvici-left')?.children.item(4)?.children.item(1)?.textContent
 
-    const duration = window.document.querySelector('.mvic-desc .mvic-info .mvici-right')?.children.item(0)?.querySelector('span')?.textContent
+    const duration = window.document.querySelector(".mvic-desc .mvic-info .mvici-right span[itemprop='duration']")?.textContent
     const release = window.document.querySelector('.mvic-desc .mvic-info .mvici-right')?.children.item(2)?.textContent.split(" ")?.slice(1).join(" ")
     const description = window.document.querySelector('.mvic-desc .desc')?.textContent
     const thumbnailLandscape = window.document.querySelector('#mv-info a')?.getAttribute('style')?.split(" ")?.slice(1).join("").split("url").slice(1).join("").split("(").slice(1).join("").split(")").join("")
@@ -129,12 +131,12 @@ async function getVideoLink(res, iframe) {
         const linkVideo = window.document.querySelector("iframe").src
         return linkVideo
     } catch (err) {
-        return res.json({ error: err.response.statusText })
+        return "Server Error"
     }
 }
 
-function getMovies(req, res, url, numPage, gdrive) {
-    getJSON(req, res, url, numPage, gdrive)
+function getMovies(req, res, url, numPage, gdrive, maxResult) {
+    getJSON(req, res, url, numPage, gdrive, maxResult)
 }
 
 module.exports = getMovies
