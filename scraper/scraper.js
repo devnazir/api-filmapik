@@ -7,11 +7,11 @@ async function scrapping(res, url) {
         const response = await axios(`${url}`)
         return response.data
     } catch (err) {
-        res.json({ error: err.Error })
+        console.log(err)
     }
 }
 
-async function getJSON(req, res, url, numPage, gdrive, maxResult) {
+async function getJSON(req, res, url, numPage, video, maxResult) {
     try {
         const html = await scrapping(res, url)
         const { window } = new JSDOM(html)
@@ -36,7 +36,7 @@ async function getJSON(req, res, url, numPage, gdrive, maxResult) {
                 officialWeb,
                 movieId,
                 detail: await detailMovie(officialWeb),
-                video: await getIframe(req, res, officialWeb, gdrive)
+                video: await getIframe(req, res, officialWeb, video)
             })
         }))
 
@@ -96,7 +96,7 @@ async function detailMovie(officialWeb) {
     }
 }
 
-async function getIframe(req, res, officialWeb, gdrive) {
+async function getIframe(req, res, officialWeb, video) {
     try {
         let playVideo = `${officialWeb}/play`
         let response = await axios(playVideo)
@@ -113,11 +113,14 @@ async function getIframe(req, res, officialWeb, gdrive) {
             iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
         }
 
-        if (gdrive == "true") {
+        if (video == "gdrive") {
             return await getVideoLink(res, iframe)
+        } else if(video == "iframe") {
+            return iframe
+        } else {
+            return
         }
 
-        return iframe
 
     } catch (err) {
         console.log(err)
@@ -135,8 +138,8 @@ async function getVideoLink(res, iframe) {
     }
 }
 
-function getMovies(req, res, url, numPage, gdrive, maxResult) {
-    getJSON(req, res, url, numPage, gdrive, maxResult)
+function getMovies(req, res, url, numPage, video, maxResult) {
+    getJSON(req, res, url, numPage, video, maxResult)
 }
 
-module.exports = getMovies
+module.exports = {getMovies, scrapping, getVideoLink}

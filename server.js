@@ -1,7 +1,10 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const getMovies = require('./scraper/scraper')
+const myModule = require('./scraper/scraper')
+const getMovies = myModule.getMovies
+const scrapping = myModule.scrapping
+const videoLink = myModule.getVideoLink
 const jsdom = require('jsdom')
 const { JSDOM } = jsdom
 const axios = require('axios')
@@ -20,8 +23,8 @@ function checkNumPage(req) {
     return req.query.page ?? "1"
 }
 
-function checkGdrive(req) {
-    return req.query.gdrive ?? false
+function checkVideo(req) {
+    return req.query.video ?? false
 }
 
 function checkSearch(req) {
@@ -40,56 +43,90 @@ async function scrapHomePage() {
     return window
 }
 
+app.get('/play', async function (req, res) {
+    try {
+        const movieId = req.query.id
+        const target = `https://www.googleapis.com/customsearch/v1?key=AIzaSyBJF5f7g3XiCg_E7dQjIX2CS5gl8c4Wkj4&cx=017552896205506834830:6zakuimpdcb&q=${movieId}`
+        const response = await axios(target)
+        
+        if(response.data.items) {
+            let url = response.data.items[0].link
+            
+            if(!url.includes('play')) {
+                url = `${url}/play`
+            }
+        
+            const html = await scrapping(res, url)
+            const { window } = new JSDOM(html)
+            const iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
+            res.json({ link: await videoLink(res, iframe) })
+        } else {
+            res.json({error: "Movie not Found"})
+        }
 
-app.get('/search', function(req, res) {
+    } catch(err) {
+
+        console.log(err)
+    }
+})
+
+app.get('/search', function (req, res) {
     const q = req.query.q
     const url = `${domain}/page/${checkNumPage(req)}?s=${q}`
-    getMovies(req, res, url, checkNumPage(req), checkGdrive(req), maxResult(req))
+    getMovies(req, res, url, checkNumPage(req), checkVideo(req), maxResult(req))
 })
 
 app.get('/latest', function (req, res) {
     const url = `${domain}/latest/page/${checkNumPage(req)}`
-    getMovies(req, res, url, checkNumPage(req), checkGdrive(req))
+    getMovies(req, res, url, checkNumPage(req), checkVideo(req))
 })
 
 app.get('/country', async function (req, res) {
-    const country = []
+    try {
+        const country = []
 
-    const items = (await scrapHomePage()).document.querySelectorAll('#menu li#menu-item-13566 .menu-item')
-    items.forEach(item => {
-        country.push(item.textContent.toLowerCase())
-    })
+        const items = (await scrapHomePage()).document.querySelectorAll('#menu li#menu-item-13566 .menu-item')
+        items.forEach(item => {
+            country.push(item.textContent.toLowerCase())
+        })
 
-    if (country.includes(checkSearch(req))) {
-        const url = `${domain}/negara/${checkSearch(req)}/page/${checkNumPage(req)}`
-        getMovies(req, res, url, checkNumPage(req), checkGdrive(req))
-        return
+        if (country.includes(checkSearch(req))) {
+            const url = `${domain}/negara/${checkSearch(req)}/page/${checkNumPage(req)}`
+            getMovies(req, res, url, checkNumPage(req), checkVideo(req))
+            return
+        }
+
+        res.json({ error: `Movies in ${checkSearch(req)} not found` })
+    } catch (err) {
+        console.log(err)
     }
-
-    res.json({ error: `Movies in ${checkSearch(req)} not found` })
 })
 
-app.get('/category', async function(req, res) {
-    const category = []
+app.get('/category', async function (req, res) {
+    try {
+        const category = []
 
-    const items = (await scrapHomePage()).document.querySelectorAll('#menu li.menu-item .menu-item-object-category')
-    items.forEach(item => {
-        category.push(item.textContent.toLowerCase())
-    })
+        const items = (await scrapHomePage()).document.querySelectorAll('#menu li.menu-item .menu-item-object-category')
+        items.forEach(item => {
+            category.push(item.textContent.toLowerCase())
+        })
 
-    category.push('box-office', 'boxoffice')
+        category.push('box-office', 'boxoffice')
 
-    if (category.includes(checkSearch(req))) {
-        const url = `${domain}/category/${checkSearch(req)}/page/${checkNumPage(req)}`
-        getMovies(req, res, url, checkNumPage(req), checkGdrive(req))
-        return
+        if (category.includes(checkSearch(req))) {
+            const url = `${domain}/category/${checkSearch(req)}/page/${checkNumPage(req)}`
+            getMovies(req, res, url, checkNumPage(req), checkVideo(req))
+            return
+        }
+
+        res.json({ error: `Category ${checkSearch(req)} not found` })
+    } catch (err) {
+        console.log(err)
     }
-
-    res.json({ error: `Category ${checkSearch(req)} not found` })
 })
 
 app.get('*', function (req, res) {
-    res.send({ error: "Error" })
+    res.json({ error: "Error" })
 })
 
 app.listen(process.env.PORT || 8000, () => console.log("Server work at localhost:8000"))
