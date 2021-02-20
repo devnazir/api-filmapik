@@ -38,13 +38,13 @@ Berikut ini beberapa data yang akan didapat
 https://api-filmapik.herokuapp.com/pathname?parameter
 
 ## Contoh
-#### GET Search Movies
+#### GET search
 https://api-filmapik.herokuapp.com/search?q=avenger
 
-#### GET Latest Movies
+#### GET latest
 https://api-filmapik.herokuapp.com/latest
 
-#### GET Search by Country 
+#### GET country 
 https://api-filmapik.herokuapp.com/country?search=france
 
 Output
@@ -73,7 +73,7 @@ Output
 ...
 ```
 
-#### GET Search by Category
+#### GET category
 https://api-filmapik.herokuapp.com/category?search=action
 
 Output: 
