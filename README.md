@@ -97,7 +97,7 @@ Output:
 ...
 ```
 
-#### GET Link Google Drive
+#### GET play
 https://api-filmapik.herokuapp.com/play?id=142455
 
 Output: 
