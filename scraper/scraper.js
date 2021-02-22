@@ -41,15 +41,15 @@ async function getJSON(req, res, url, numPage, video, maxResult) {
         }))
 
         result.forEach(movie => {
-            for(const data in movie.detail) {
-                if(movie.detail[data] === null || movie.detail[data] === 0) {
+            for (const data in movie.detail) {
+                if (movie.detail[data] === null || movie.detail[data] === 0) {
                     delete movie.detail[data]
                 }
             }
             delete movie.officialWeb
         })
 
-        res.json({ result, length: `${movies.length}` ,page: numPage })
+        res.json({ result, length: `${movies.length}`, page: numPage })
 
     } catch (err) {
         console.log(err)
@@ -58,7 +58,7 @@ async function getJSON(req, res, url, numPage, video, maxResult) {
 
 async function detailMovie(officialWeb) {
 
-    if(officialWeb.includes('tvshows')) {
+    if (officialWeb.includes('tvshows')) {
         const urlTemp = new URL(officialWeb).toString().split('/tvshows').join("")
         const url = new URL(urlTemp)
 
@@ -98,30 +98,29 @@ async function detailMovie(officialWeb) {
 
 async function getIframe(req, res, officialWeb, video) {
     try {
-        let playVideo = `${officialWeb}/play`
-        let response = await axios(playVideo)
-        let { window } = new JSDOM(response.data)
-        let iframe = window.document.querySelector('.iframe #myFrame')?.getAttribute('src')
+        if (video == 'grive') {
+            let playVideo = `${officialWeb}/play`
+            let response = await axios(playVideo)
+            let { window } = new JSDOM(response.data)
+            let iframe = window.document.querySelector('.iframe #myFrame')?.getAttribute('src')
 
-        if (iframe === undefined || iframe === null) {
-            const urlTemp = new URL(officialWeb).toString().split('/tvshows').join("")
-            const url = new URL(urlTemp)
+            if (iframe === undefined || iframe === null) {
+                const urlTemp = new URL(officialWeb).toString().split('/tvshows').join("")
+                const url = new URL(urlTemp)
 
-            playVideo = `${url.origin}/episodes${url.pathname}-1x1/play`
-            response = await axios(playVideo)
-            const { window } = new JSDOM(response.data)
-            iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
-        }
+                playVideo = `${url.origin}/episodes${url.pathname}-1x1/play`
+                response = await axios(playVideo)
+                const { window } = new JSDOM(response.data)
+                iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
+            }
 
-        if (video == "gdrive") {
             return await getVideoLink(res, iframe)
-        } else if(video == "iframe") {
+
+        } else if (video == "iframe") {
             return iframe
         } else {
             return
         }
-
-
     } catch (err) {
         console.log(err)
     }
@@ -142,4 +141,4 @@ function getMovies(req, res, url, numPage, video, maxResult) {
     getJSON(req, res, url, numPage, video, maxResult)
 }
 
-module.exports = {getMovies, scrapping, getVideoLink}
+module.exports = { getMovies, scrapping, getVideoLink }
