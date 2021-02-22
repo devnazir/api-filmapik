@@ -46,25 +46,25 @@ async function scrapHomePage() {
 app.get('/play', async function (req, res) {
     try {
         const movieId = req.query.id
-        const target = `https://www.googleapis.com/customsearch/v1?key=AIzaSyBJF5f7g3XiCg_E7dQjIX2CS5gl8c4Wkj4&cx=017552896205506834830:6zakuimpdcb&q=${movieId}`
+        const target = `https://www.googleapis.com/customsearch/v1?key=AIzaSyDEkTkys3gPYdUvcG7lIFHWSnh93X1xSho&cx=017552896205506834830:6zakuimpdcb&q=${movieId}`
         const response = await axios(target)
-        
-        if(response.data.items) {
+
+        if (response.data.items) {
             let url = response.data.items[0].link
-            
-            if(!url.includes('play')) {
+
+            if (!url.includes('play')) {
                 url = `${url}/play`
             }
-        
-            const html = await scrapping(res, url)
+
+            const html = await scrapping(url)
             const { window } = new JSDOM(html)
             const iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
-            res.json({ link: await videoLink(res, iframe) })
+            res.json({ link: await videoLink(iframe) })
         } else {
-            res.json({error: "Movie not Found"})
+            res.json({ error: "Movie not Found" })
         }
 
-    } catch(err) {
+    } catch (err) {
 
         console.log(err)
     }
