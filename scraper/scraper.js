@@ -98,7 +98,7 @@ async function detailMovie(officialWeb) {
 
 async function getIframe(req, res, officialWeb, video) {
     try {
-        if (video == 'grive') {
+        if (video == 'gdrive') {
             let playVideo = `${officialWeb}/play`
             let response = await axios(playVideo)
             let { window } = new JSDOM(response.data)
