@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const myModule = require('./scraper/scraper')
-const getMovies = myModule.getMovies
+const getJSON = myModule.getJSON
 const scrapping = myModule.scrapping
 const videoLink = myModule.getVideoLink
 const jsdom = require('jsdom')
@@ -73,12 +73,12 @@ app.get('/play', async function (req, res) {
 app.get('/search', function (req, res) {
     const q = req.query.q
     const url = `${domain}/page/${checkNumPage(req)}?s=${q}`
-    getMovies(req, res, url, checkNumPage(req), checkVideo(req), maxResult(req))
+    getJSON(res, url, checkNumPage(req), checkVideo(req), maxResult(req))
 })
 
 app.get('/latest', function (req, res) {
     const url = `${domain}/latest/page/${checkNumPage(req)}`
-    getMovies(req, res, url, checkNumPage(req), checkVideo(req), maxResult(req))
+    getJSON(res, url, checkNumPage(req), checkVideo(req), maxResult(req))
 })
 
 app.get('/country', async function (req, res) {
@@ -92,7 +92,7 @@ app.get('/country', async function (req, res) {
 
         if (country.includes(checkSearch(req))) {
             const url = `${domain}/negara/${checkSearch(req)}/page/${checkNumPage(req)}`
-            getMovies(req, res, url, checkNumPage(req), checkVideo(req), maxResult(req))
+            getJSON(res, url, checkNumPage(req), checkVideo(req), maxResult(req))
             return
         }
 
@@ -115,7 +115,7 @@ app.get('/category', async function (req, res) {
 
         if (category.includes(checkSearch(req))) {
             const url = `${domain}/category/${checkSearch(req)}/page/${checkNumPage(req)}`
-            getMovies(req, res, url, checkNumPage(req), checkVideo(req), maxResult(req))
+            getJSON(res, url, checkNumPage(req), checkVideo(req), maxResult(req))
             return
         }
 

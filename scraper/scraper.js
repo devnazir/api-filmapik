@@ -2,7 +2,7 @@ const jsdom = require('jsdom')
 const { JSDOM } = jsdom
 const axios = require('axios')
 
-async function scrapping(res, url) {
+async function scrapping(url) {
     try {
         const response = await axios(`${url}`)
         return response.data
@@ -11,9 +11,9 @@ async function scrapping(res, url) {
     }
 }
 
-async function getJSON(req, res, url, numPage, video, maxResult) {
+async function getJSON(res, url, numPage, video, maxResult) {
     try {
-        const html = await scrapping(res, url)
+        const html = await scrapping(url)
         const { window } = new JSDOM(html)
         const result = []
 
@@ -36,7 +36,7 @@ async function getJSON(req, res, url, numPage, video, maxResult) {
                 officialWeb,
                 movieId,
                 detail: await detailMovie(officialWeb),
-                video: await getIframe(req, res, officialWeb, video)
+                video: await getIframe(officialWeb, video)
             })
         }))
 
@@ -96,7 +96,7 @@ async function detailMovie(officialWeb) {
     }
 }
 
-async function getIframe(req, res, officialWeb, video) {
+async function getIframe(officialWeb, video) {
     try {
         if (video == 'gdrive') {
             let playVideo = `${officialWeb}/play`
@@ -114,7 +114,7 @@ async function getIframe(req, res, officialWeb, video) {
                 iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
             }
 
-            return await getVideoLink(res, iframe)
+            return await getVideoLink(iframe)
 
         } else if (video == "iframe") {
             return iframe
@@ -126,7 +126,7 @@ async function getIframe(req, res, officialWeb, video) {
     }
 }
 
-async function getVideoLink(res, iframe) {
+async function getVideoLink(iframe) {
     try {
         const response = await axios(iframe)
         const { window } = new JSDOM(response.data)
@@ -137,8 +137,4 @@ async function getVideoLink(res, iframe) {
     }
 }
 
-function getMovies(req, res, url, numPage, video, maxResult) {
-    getJSON(req, res, url, numPage, video, maxResult)
-}
-
-module.exports = { getMovies, scrapping, getVideoLink }
+module.exports = { getJSON, scrapping, getVideoLink }
