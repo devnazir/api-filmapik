@@ -99,31 +99,34 @@ async function detailMovie(officialWeb) {
 async function getIframe(officialWeb, video) {
     try {
         if (video == 'gdrive') {
-            let playVideo = `${officialWeb}/play`
-            let response = await axios(playVideo)
-            let { window } = new JSDOM(response.data)
-            let iframe = window.document.querySelector('.iframe #myFrame')?.getAttribute('src')
-
-            if (iframe === undefined || iframe === null) {
-                const urlTemp = new URL(officialWeb).toString().split('/tvshows').join("")
-                const url = new URL(urlTemp)
-
-                playVideo = `${url.origin}/episodes${url.pathname}-1x1/play`
-                response = await axios(playVideo)
-                const { window } = new JSDOM(response.data)
-                iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
-            }
-
-            return await getVideoLink(iframe)
-
+            return await getVideoLink(await videoURL(officialWeb))
         } else if (video == "iframe") {
-            return iframe
+            return await videoURL(officialWeb)
         } else {
             return
         }
     } catch (err) {
         console.log(err)
     }
+}
+
+async function videoURL(officialWeb) {
+    let playVideo = `${officialWeb}/play`
+    let response = await axios(playVideo)
+    let { window } = new JSDOM(response.data)
+    let iframe = window.document.querySelector('.iframe #myFrame')?.getAttribute('src')
+
+    if (iframe === undefined || iframe === null) {
+        const urlTemp = new URL(officialWeb).toString().split('/tvshows').join("")
+        const url = new URL(urlTemp)
+
+        playVideo = `${url.origin}/episodes${url.pathname}-1x1/play`
+        response = await axios(playVideo)
+        const { window } = new JSDOM(response.data)
+        iframe = window.document.querySelector('.iframe #myFrame').getAttribute('src')
+    }
+
+    return iframe
 }
 
 async function getVideoLink(iframe) {
